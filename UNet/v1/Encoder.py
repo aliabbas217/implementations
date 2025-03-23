@@ -4,10 +4,7 @@ import torch.nn.functional as F
 from ConvBlock import ConvBlock
 
 class Encoder(nn.Module):
-  def __init__(
-    self, in_channels = 3, levels=4, init_filters = 32,
-    layers_per_block = 4, max_pool2d_kernel_size = 2, conv_block_kernel_size = 2
-  ):
+  def __init__(self, in_channels = 3, levels=4, init_filters = 32, layers_per_block = 4, max_pool2d_kernel_size = 2, conv_block_kernel_size = 2):
     super(Encoder, self).__init__()
     self.levels = levels
     self.init_filters = init_filters
@@ -33,7 +30,7 @@ class Encoder(nn.Module):
 
   def forward(self, x):
     x = self.first_conv_block(x)
-    x = nn.ParameterList([x])
+    x = [x]
     for conv_block in self.seq:
       y = self.max_pool2d(x[-1])
       x.append(conv_block(y))

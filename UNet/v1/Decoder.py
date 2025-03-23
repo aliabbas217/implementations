@@ -13,7 +13,7 @@ class Decoder(nn.Module):
     self.layers_per_block = layers_per_block
     self.transpose_convs = nn.ModuleList([
         nn.ConvTranspose2d(
-            kernel_size=2, stride=2,
+            kernel_size=2, stride=2, padding = 0,
             in_channels= self.init_filters*(2**(self.levels_in_encoder-1-i)),
             out_channels= self.init_filters*(2**(self.levels_in_encoder-1-i))
         )
@@ -21,16 +21,18 @@ class Decoder(nn.Module):
     ])
     self.conv_blocks = nn.ModuleList([
         ConvBlock(
-            in_channels= (self.init_filters * (2**(self.levels_in_decoder-1-i)))+(self.init_filters * (2**(self.levels_in_decoder-i))), 
-            filters= self.init_filters * (2**(self.levels_in_decoder-1-i)),
-            layers_per_block= self.layers_per_block,
-            kernel_size= self.conv_block_kernel_size
+          in_channels= (self.init_filters * (2**(self.levels_in_decoder-1-i)))+(self.init_filters * (2**(self.levels_in_decoder-i))), 
+          filters= self.init_filters * (2**(self.levels_in_decoder-1-i)),
+          layers_per_block= self.layers_per_block,
+          kernel_size= self.conv_block_kernel_size
         )
         for i in range(self.levels_in_decoder)
     ])
 
   def forward(self, encoder_outputs):
-    output = self.conv_blocks[0](torch.cat((self.transpose_convs[0](encoder_outputs[-1]), encoder_outputs[-2]), dim= 1))
-    for i in range(self.levels_in_decoder-1):
-      output = self.conv_blocks[i+1](torch.cat((self.transpose_convs[i+1](output), encoder_outputs[-3-i]), dim= 1))
+    output = encoder_outputs[-1]
+    for i in range(self.levels_in_decoder):
+      upsampled = self.transpose_convs[i](output)
+      skip_connection = encoder_outputs[-(i+2)]
+      output = self.conv_blocks[i](torch.cat((upsampled, skip_connection), dim=1))
     return output

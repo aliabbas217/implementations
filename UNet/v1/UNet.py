@@ -28,5 +28,8 @@ class UNet(nn.Module):
   def forward(self, x):
     encoder_outputs = self.encoder(x)
     decoder_outputs = self.decoder(encoder_outputs)
+    """
+    We can also make it reusable for similar tasks by keepint the 1x1 conv2D outside the model... Update this next time
+    """
     outputs = self.final_conv(decoder_outputs)
     return outputs

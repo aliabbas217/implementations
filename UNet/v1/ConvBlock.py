@@ -9,14 +9,23 @@ class ConvBlock(nn.Module):
     self.in_channels = in_channels
     self.filters = filters
     self.layers_per_block = layers_per_block
-    self.first_conv_layer = nn.Conv2d(in_channels = self.in_channels, out_channels = self.filters, padding = "same", kernel_size=kernel_size)
+    self.first_conv_layer = nn.Conv2d(
+      in_channels = self.in_channels, out_channels = self.filters,
+      padding = "same", kernel_size=kernel_size
+    )
     self.seq = nn.Sequential(*(
-        nn.Conv2d(in_channels = self.filters, out_channels = self.filters, padding = "same", kernel_size=kernel_size)
-         for i in range(self.layers_per_block - 1)
+    nn.Sequential(
+        nn.Conv2d(
+          in_channels=self.filters, out_channels=self.filters,
+          padding="same", kernel_size=kernel_size
+        ),
+        nn.ReLU(inplace=True)
+    )
+    for _ in range(self.layers_per_block - 1)
     ))
 
   def forward(self, x):
-    x = self.first_conv_layer(x)
+    x = F.relu(self.first_conv_layer(x))
     x = self.seq(x)
 
     return x
