@@ -25,7 +25,7 @@ X = torch.rand(2, 3, 256, 256)
 
 #Testing Complete UNet
 unet = UNet(kernel_size=3)
-print(unet)
+# print(unet)
 unet_output = unet(X)
 print(unet_output.shape)
 
